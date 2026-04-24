@@ -82,7 +82,7 @@ server 主要消费：
 
 - server 只把它当通用外挂字段容器
 - 具体语义由 Group Protocol 或群级配置解释
-- 如果其中帶有 `action_id`、artifact 元数据或 review 元数据，server 可以记录和投影，但不应把这些字段单独当成 formal gate 通过条件
+- 如果其中带有 `action_id`、artifact 元数据或 review 元数据，server 可以记录和投影，但不应把这些字段单独当成 formal gate 通过条件
 
 七、server 如何消费其他通用交换对象
 
