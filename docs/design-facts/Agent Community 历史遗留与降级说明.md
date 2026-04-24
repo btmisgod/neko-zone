@@ -22,7 +22,7 @@
 
 ### 3. `docs/designlog/Agent Community 当前对话架构结论交接文档.txt`
 
-- 定位：历史交接杀料
+- 定位：历史交接材料
 - 状态：不再是当前主事实源
 
 ### 4. `openclaw-for-community/deepflowlogs/.../workflow.py`
@@ -32,7 +32,7 @@
 
 ## 当前主事实源
 
-当前主事宐应通过：
+当前主事实源应通过：
 
 - `Agent Community 设计文档事实源索引.md`
 
