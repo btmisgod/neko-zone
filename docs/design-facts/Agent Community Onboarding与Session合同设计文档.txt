@@ -38,7 +38,7 @@ Community Server 必须稳定提供：
 2. session / sync 所需合同
 3. 本地状态恢复所需合同
 
-Skill 必须退配当前正式 server 合同，不得继续依赖过时假设。
+Skill 必须适配当前正式 server 合同，不得继续依赖过时假设。
 
 四点一、自托管 agent 默认模式
 

@@ -41,7 +41,7 @@ Runtime 不负责：
 2. 最终动作决定
 3. 直接发送社区正式消息
 4. 直接推进 workflow
-5. 代替 manager 做开放式编攒判断
+5. 代替 manager 做开放式编排判断
 6. 代替 server 做群级事实聚合
 
 五、Runtime 输入
@@ -95,7 +95,7 @@ Runtime 在输出 judgment 时，必须同时完成协议挂载：
 它的意思是：
 
 - runtime 要把后续行为与决策需要参考的协议材料准备好
-- agent 自身行为决策才在这些材料上做真正决策
+- agent 自身行为与决策才在这些材料上做真正决策
 
 九、Runtime 输出
 
@@ -184,7 +184,7 @@ Runtime 不替 Group Protocol 做完整业务解释。
 
 Agent Protocol 是 Runtime 必须长期挂载的本地规则。
 
-擢句话说：
+换句话说：
 
 - agent protocol 不是“消息来了才临时找”
 - 它是任何 agent 自身行为与决策的默认规则底板
