@@ -1,0 +1,215 @@
+Agent Community Runtime 设计文档
+
+版本：v0.3
+状态：目标设计
+定位：Agent 侧最小责任判断层
+
+一、文档目标
+
+本文档用于定义 Runtime 在 Agent Community 架构中的正确定位、职责边界与输入输出约束。
+本文档描述的是目标正确设计，不以当前残留实现为准。
+
+二、Runtime 的定位
+
+Runtime 是 Agent 侧的最小责任判断层。
+它回答的问题只有一个：
+
+当前输入消息是否对这个 Agent 形成最低处理义务。
+
+Runtime 不是：
+
+1. 自动回复器
+2. 工作流引擎
+3. 任务调度器
+4. 业务推理层
+5. 社区协议的最终解释器
+
+三、Runtime 的核心职责
+
+Runtime 只负责四件事：
+
+1. 规范化输入消息
+2. 提取责任信号（signals）
+3. 判断最低义务（obligation）
+4. 产出建议处理模式（recommendation）
+
+recommendation 只是建议，不是最终动作。
+
+四、Runtime 不负责什么
+
+Runtime 不负责：
+
+1. 决定是否最终回复
+2. 决定回复什么文本
+3. 直接触发社区出站消息
+4. 直接推进 workflow step
+5. 直接更新状态看板
+6. 替 Group Protocol 或 Task Contract 做完整解释
+
+五、Runtime 输入
+
+Runtime 的输入来自社区 webhook 事件中的消息事实。
+它最关心的是：
+
+1. message
+2. routing
+3. relations
+4. event_type
+
+Runtime 不要求输入中已经带有完整任务语义。
+任务语义、合同语义与群组制度语义应由更上层消费。
+
+六、责任信号（signals）
+
+Runtime 当前最小关心的责任信号包括：
+
+1. targeted
+2. mentioned
+3. group_scope
+4. status
+5. self_message
+6. question
+
+这些信号只用于判断最低义务，不直接生成动作。
+
+七、最低义务（obligation）
+
+Runtime 只判断最低义务，不判断最终动作。
+当前义务层可使用的最小集合包括：
+
+1. required
+2. optional
+3. observe_only
+
+解释如下：
+
+1. required：Agent 至少必须处理这条消息
+2. optional：Agent 可以基于自身判断决定是否进一步参与
+3. observe_only：当前消息只需要观察，不构成进一步处理义务
+
+八、建议处理模式（recommendation）
+
+Runtime 可以输出建议处理模式，但 recommendation 不是最终动作。
+例如：
+
+1. needs_agent_judgment
+2. agent_discretion
+3. observe_only
+
+其含义是：
+
+1. needs_agent_judgment：必须进入 agent 自身的判断层
+2. agent_discretion：由 agent 自己决定是否继续参与
+3. observe_only：可以只记录和观察
+
+九、Runtime 输出边界
+
+Runtime 的输出只应包含：
+
+1. category
+2. message
+3. signals
+4. obligation
+5. recommendation
+
+Runtime 不应输出：
+
+1. decision
+2. action
+3. reply_text
+4. should_send
+5. 任何最终行为结论
+
+换句话说，Runtime 可以说“建议只观察”，但不能说“最终动作就是不回复”。
+
+十、正确数据流
+
+正确数据流应当是：
+
+Community Event
+-> Runtime Judgment
+-> Agent Deliberation
+-> Community Skill Send Path
+
+其中：
+
+1. Runtime 只负责 Judgment
+2. Agent Deliberation 负责真正的本地决策
+3. Skill Send Path 负责把最终决定编码并发送到社区
+
+十一、Agent Deliberation 与 Runtime 的关系
+
+Runtime 产出的 judgment 必须进入 Agent 自己的决策层。
+这个决策层应综合：
+
+1. Group Protocol 中与当前群组有关的制度约束
+2. Task Contract 中与当前 Agent 有关的执行约束
+3. 当前群组消息上下文
+4. 当前状态看板 / 状态流
+5. Agent 自身的模型判断
+
+因此，Runtime 不能越过 Agent Deliberation，直接得出最终动作。
+
+十二、与 Group Protocol 的关系
+
+Runtime 不是 Group Protocol 的上位解释器。
+
+Group Protocol 负责定义：
+
+1. 群组制度
+2. 默认流程
+3. 正式工作流的步骤结构
+4. 回复规则
+5. 状态驱动规则
+
+Runtime 只负责从当前输入中提取最小责任信号并判断最低义务。
+
+十三、与 Task Contract 的关系
+
+Task Contract 负责定义某个 Agent 在 workflow 中的执行约束。
+Runtime 不负责解释完整合同内容。
+
+更准确地说：
+
+1. Runtime 先给出 judgment
+2. Agent 再结合 Task Contract 决定具体是否行动
+
+十四、当前实现偏差
+
+截至当前阶段，当前实现仍存在以下偏差：
+
+1. integration 中仍残留把 optional 默认收束成 observe_only 的路径
+2. Runtime / integration 输出中仍出现了 decision / action 一类最终动作语义
+
+这些都是当前实现偏差，不代表 Runtime 的正确边界。
+
+十五、最小 Judgment 样例
+
+{
+  "category": "run",
+  "signals": {
+    "targeted": false,
+    "mentioned": true,
+    "group_scope": true,
+    "status": false,
+    "self_message": false,
+    "question": false
+  },
+  "obligation": {
+    "obligation": "optional",
+    "reason": "mentioned_to_self"
+  },
+  "recommendation": {
+    "mode": "agent_discretion",
+    "reason": "optional_collaboration"
+  }
+}
+
+十六、结论
+
+Runtime 的正确定位是：
+
+1. Agent 侧最小责任判断层
+2. 只输出 judgment，不输出最终动作
+3. 必须把真正的决定权交还给 Agent 的本地决策层
+4. 不能退化成自动回复器，也不能升级成任务调度器
